@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Build Your Own Garden</title>
+
+  <link rel="stylesheet" href="style.css" />
+  <script src="script.js" defer></script>
+</head>
+
+<body>
+
+  <!-- =========================================
+       SCREEN 01
+       LOADING
+  ========================================== -->
+
+  <section id="loading-screen" class="screen active">
+
+    <div class="browser-window small-window">
+
+      <div class="browser-bar">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+
+      <div class="loading-content">
+
+        <div class="spinner"></div>
+
+        <p>GENERATING GARDENS...</p>
+
+        <p id="loading-number">
+          0 / 50
+        </p>
+
+      </div>
+
+    </div>
+
+  </section>
+
+
+
+  <!-- =========================================
+       SCREEN 02
+       50 AI GARDENS
+  ========================================== -->
+
+  <section id="gallery-screen" class="screen">
+
+    <div class="browser-window">
+
+      <div class="browser-bar">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+
+      <div id="garden-gallery"></div>
+
+      <div class="gallery-message">
+
+        <h1>50 GARDENS.</h1>
+
+        <p>
+          NONE OF THESE ARE YOURS.
+        </p>
+
+        <button id="start-button">
+          BUILD YOUR OWN
+        </button>
+
+      </div>
+
+    </div>
+
+  </section>
+
+
+
+  <!-- =========================================
+       SCREEN 03
+       BUILD YOUR GARDEN
+  ========================================== -->
+
+  <section id="builder-screen" class="screen">
+
+    <div class="builder-layout">
+
+      <header class="builder-header">
+
+        <h1>BUILD YOUR OWN GARDEN</h1>
+
+        <div class="builder-info">
+          <span id="selected-count">0 SELECTED</span>
+          <span id="deleted-count">0 DELETED</span>
+        </div>
+
+      </header>
+
+
+      <!-- WORK AREA -->
+
+      <main id="canvas">
+
+        <p class="canvas-message">
+          DRAG SOMETHING HERE
+        </p>
+
+      </main>
+
+
+      <!-- TOOL BAR -->
+
+      <aside id="tools">
+
+        <button id="rotate-left">
+          ↺
+        </button>
+
+        <button id="rotate-right">
+          ↻
+        </button>
+
+        <button id="smaller">
+          −
+        </button>
+
+        <button id="bigger">
+          +
+        </button>
+
+        <button id="front">
+          FRONT
+        </button>
+
+        <button id="delete">
+          DELETE
+        </button>
+
+      </aside>
+
+
+      <!-- FRAGMENT PILE -->
+
+      <div id="fragment-area">
+
+        <p class="fragment-label">
+          AI FRAGMENTS
+        </p>
+
+        <div id="fragment-pile"></div>
+
+      </div>
+
+
+      <button id="finish-button">
+        FINISH
+      </button>
+
+    </div>
+
+  </section>
+
+
+
+  <!-- =========================================
+       SCREEN 04
+       RESULT
+  ========================================== -->
+
+  <section id="result-screen" class="screen">
+
+    <div class="result-container">
+
+      <div class="result-preview">
+
+        <h2>YOUR GARDEN</h2>
+
+        <div id="final-garden"></div>
+
+      </div>
+
+
+      <div class="result-information">
+
+        <label for="garden-name">
+          GIVE YOUR GARDEN A NAME
+        </label>
+
+        <input
+          type="text"
+          id="garden-name"
+          placeholder="MY GARDEN"
+        />
+
+
+        <div class="statistics">
+
+          <p>
+            50 AI GARDENS
+          </p>
+
+          <p>
+            100 AI FRAGMENTS
+          </p>
+
+          <p>
+            <span id="final-selected">0</span>
+            SELECTED
+          </p>
+
+          <p>
+            <span id="final-deleted">0</span>
+            DELETED
+          </p>
+
+          <p class="human-result">
+            1 HUMAN GARDEN
+          </p>
+
+        </div>
+
+        <button id="restart-button">
+          START AGAIN
+        </button>
+
+      </div>
+
+    </div>
+
+  </section>
+
+</body>
+</html>

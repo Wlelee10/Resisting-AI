@@ -1,0 +1,614 @@
+/* =========================================
+   BASIC RESET
+========================================= */
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  background: #f7f7f4;
+  color: #111;
+  overflow: hidden;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+
+/* =========================================
+   SCREENS
+========================================= */
+
+.screen {
+  display: none;
+  width: 100vw;
+  height: 100vh;
+}
+
+.screen.active {
+  display: flex;
+}
+
+
+/* =========================================
+   FAKE BROWSER
+========================================= */
+
+.browser-window {
+  position: relative;
+
+  width: 92%;
+  height: 88%;
+
+  margin: auto;
+
+  border: 2px solid #111;
+
+  background: #fff;
+
+  overflow: hidden;
+}
+
+.small-window {
+  width: 65%;
+  height: 65%;
+}
+
+
+/* browser top bar */
+
+.browser-bar {
+  height: 32px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 6px;
+
+  padding-left: 10px;
+
+  border-bottom: 2px solid #111;
+}
+
+.browser-bar span {
+  width: 8px;
+  height: 8px;
+
+  border: 1px solid #111;
+
+  border-radius: 50%;
+}
+
+
+/* =========================================
+   LOADING
+========================================= */
+
+#loading-screen {
+  align-items: center;
+  justify-content: center;
+}
+
+.loading-content {
+  height: calc(100% - 32px);
+
+  display: flex;
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 15px;
+}
+
+.spinner {
+  width: 30px;
+  height: 30px;
+
+  border: 2px solid #bbb;
+  border-top-color: #111;
+
+  border-radius: 50%;
+
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+
+/* =========================================
+   GALLERY
+========================================= */
+
+#gallery-screen {
+  align-items: center;
+  justify-content: center;
+}
+
+#garden-gallery {
+  display: grid;
+
+  grid-template-columns: repeat(10, 1fr);
+  grid-template-rows: repeat(5, 1fr);
+
+  width: 100%;
+  height: calc(100% - 32px);
+
+  gap: 4px;
+
+  padding: 5px;
+}
+
+.garden-box {
+  position: relative;
+
+  border: 1px solid #111;
+
+  background: #eee;
+
+  overflow: hidden;
+}
+
+
+/* random abstract garden shapes */
+
+.garden-box::before {
+  content: "";
+
+  position: absolute;
+
+  width: 40%;
+  height: 40%;
+
+  left: var(--x);
+  top: var(--y);
+
+  border: 1px solid #111;
+
+  border-radius: var(--radius);
+
+  transform: rotate(var(--rotation));
+}
+
+.garden-number {
+  position: absolute;
+
+  left: 4px;
+  bottom: 3px;
+
+  font-size: 9px;
+}
+
+
+/* central gallery text */
+
+.gallery-message {
+  position: absolute;
+
+  left: 50%;
+  top: 50%;
+
+  transform: translate(-50%, -50%);
+
+  padding: 28px 38px;
+
+  border: 2px solid #111;
+
+  background: rgba(255, 255, 255, 0.95);
+
+  text-align: center;
+}
+
+.gallery-message h1 {
+  font-size: 26px;
+  margin-bottom: 8px;
+}
+
+.gallery-message p {
+  font-size: 13px;
+  margin-bottom: 20px;
+}
+
+.gallery-message button {
+  background: #fff;
+
+  border: 1px solid #111;
+
+  padding: 10px 20px;
+
+  cursor: pointer;
+}
+
+.gallery-message button:hover {
+  background: #111;
+  color: #fff;
+}
+
+
+/* =========================================
+   BUILDER
+========================================= */
+
+#builder-screen {
+  background: #f5f5f2;
+}
+
+.builder-layout {
+  position: relative;
+
+  width: 100%;
+  height: 100%;
+}
+
+
+/* HEADER */
+
+.builder-header {
+  height: 70px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 0 30px;
+
+  border-bottom: 1px solid #111;
+}
+
+.builder-header h1 {
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.builder-info {
+  display: flex;
+  gap: 20px;
+
+  font-size: 11px;
+}
+
+
+/* =========================================
+   CANVAS
+========================================= */
+
+#canvas {
+  position: absolute;
+
+  left: 8%;
+  right: 8%;
+
+  top: 100px;
+  bottom: 180px;
+
+  border: 1px solid #111;
+
+  background: #fff;
+
+  overflow: hidden;
+}
+
+.canvas-message {
+  position: absolute;
+
+  left: 50%;
+  top: 50%;
+
+  transform: translate(-50%, -50%);
+
+  font-size: 12px;
+  color: #aaa;
+
+  pointer-events: none;
+}
+
+
+/* =========================================
+   FRAGMENT AREA
+========================================= */
+
+#fragment-area {
+  position: absolute;
+
+  left: 0;
+  bottom: 0;
+
+  width: 100%;
+  height: 160px;
+
+  border-top: 1px solid #111;
+
+  background: #f5f5f2;
+}
+
+.fragment-label {
+  position: absolute;
+
+  left: 20px;
+  top: 10px;
+
+  font-size: 10px;
+}
+
+#fragment-pile {
+  position: relative;
+
+  width: 100%;
+  height: 100%;
+}
+
+
+/* =========================================
+   FRAGMENTS
+========================================= */
+
+.fragment {
+  position: absolute;
+
+  width: 45px;
+  height: 45px;
+
+  cursor: grab;
+
+  user-select: none;
+
+  touch-action: none;
+
+  border: 1.5px solid #111;
+
+  background: #fff;
+}
+
+.fragment:active {
+  cursor: grabbing;
+}
+
+.fragment.selected {
+  outline: 2px dashed #111;
+  outline-offset: 3px;
+}
+
+
+/* SHAPE TYPES */
+
+.circle {
+  border-radius: 50%;
+}
+
+.rectangle {
+  width: 65px;
+  height: 32px;
+}
+
+.oval {
+  width: 70px;
+  height: 35px;
+
+  border-radius: 50%;
+}
+
+.triangle {
+  width: 0;
+  height: 0;
+
+  border-left: 25px solid transparent;
+  border-right: 25px solid transparent;
+
+  border-bottom: 45px solid #fff;
+
+  border-top: none;
+
+  background: transparent;
+}
+
+.blob {
+  border-radius:
+    60% 40% 70% 30%
+    / 50% 60% 40% 50%;
+}
+
+
+/* =========================================
+   TOOLS
+========================================= */
+
+#tools {
+  position: absolute;
+
+  top: 110px;
+  left: 20px;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 6px;
+}
+
+#tools button {
+  width: 58px;
+  min-height: 32px;
+
+  background: #fff;
+
+  border: 1px solid #111;
+
+  cursor: pointer;
+
+  font-size: 10px;
+}
+
+#tools button:hover {
+  background: #111;
+  color: #fff;
+}
+
+
+/* =========================================
+   FINISH
+========================================= */
+
+#finish-button {
+  position: absolute;
+
+  right: 25px;
+  bottom: 180px;
+
+  padding: 12px 25px;
+
+  border: 1px solid #111;
+
+  background: #fff;
+
+  cursor: pointer;
+}
+
+#finish-button:hover {
+  background: #111;
+  color: #fff;
+}
+
+
+/* =========================================
+   RESULT
+========================================= */
+
+#result-screen {
+  align-items: center;
+  justify-content: center;
+}
+
+.result-container {
+  display: grid;
+
+  grid-template-columns: 2fr 1fr;
+
+  width: 85%;
+  height: 75%;
+
+  border: 2px solid #111;
+
+  background: #fff;
+}
+
+.result-preview {
+  padding: 30px;
+
+  border-right: 1px solid #111;
+}
+
+.result-preview h2 {
+  margin-bottom: 20px;
+
+  font-size: 18px;
+}
+
+#final-garden {
+  position: relative;
+
+  width: 100%;
+  height: calc(100% - 40px);
+
+  overflow: hidden;
+
+  border: 1px solid #111;
+}
+
+.result-information {
+  padding: 35px;
+
+  display: flex;
+  flex-direction: column;
+}
+
+.result-information label {
+  font-size: 11px;
+
+  margin-bottom: 10px;
+}
+
+#garden-name {
+  width: 100%;
+
+  padding: 12px;
+
+  border: 1px solid #111;
+
+  background: transparent;
+
+  margin-bottom: 40px;
+}
+
+.statistics {
+  display: flex;
+  flex-direction: column;
+
+  gap: 14px;
+
+  font-size: 13px;
+}
+
+.human-result {
+  margin-top: 15px;
+
+  font-weight: bold;
+
+  font-size: 18px;
+}
+
+#restart-button {
+  margin-top: auto;
+
+  padding: 12px;
+
+  border: 1px solid #111;
+
+  background: #fff;
+
+  cursor: pointer;
+}
+
+#restart-button:hover {
+  background: #111;
+  color: #fff;
+}
+
+
+/* =========================================
+   RESPONSIVE
+========================================= */
+
+@media (max-width: 700px) {
+
+  #garden-gallery {
+    grid-template-columns: repeat(5, 1fr);
+    grid-template-rows: repeat(10, 1fr);
+  }
+
+  .result-container {
+    width: 94%;
+    height: 90%;
+
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr auto;
+  }
+
+  .result-preview {
+    border-right: none;
+    border-bottom: 1px solid #111;
+  }
+
+  .result-information {
+    padding: 20px;
+  }
+
+}
