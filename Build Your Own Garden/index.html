@@ -1,239 +1,289 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
   <title>Build Your Own Garden</title>
-
   <link rel="stylesheet" href="style.css" />
-  <script src="script.js" defer></script>
+  <link rel="stylesheet" href="builder.css" />
+  <link rel="stylesheet" href="result.css" />
 </head>
 
-<body>
+<body class="is-opening">
 
-  <!-- =========================================
-       SCREEN 01
-       LOADING
-  ========================================== -->
+  <!-- OPENING: 첫 화면 전에 자동 재생 (흰 화면으로 끝나면 인트로가 페이드인) -->
+  <div class="opening" id="opening">
+    <video class="opening-video" id="openingVideo" playsinline preload="auto"
+      src="%E1%84%90%E1%85%A6%E1%84%89%E1%85%B3%E1%84%90%E1%85%B3%20%E1%84%8B%E1%85%A9%E1%84%91%E1%85%B3%E1%84%82%E1%85%B5%E1%86%BC.mp4"></video>
+    <button class="opening-sound" id="openingSound" type="button" hidden>[ SOUND ON ]</button>
+  </div>
 
-  <section id="loading-screen" class="screen active">
+  <!-- WORLD: 카메라가 움직이는 전체 세계 (인트로 + 그 아래 공간) -->
+  <div class="world" id="world">
 
-    <div class="browser-window small-window">
+    <main class="intro-page" id="introPage">
 
-      <div class="browser-bar">
-        <span></span>
-        <span></span>
-        <span></span>
-      </div>
+      <section class="garden-panel">
 
-      <div class="loading-content">
-
-        <div class="spinner"></div>
-
-        <p>GENERATING GARDENS...</p>
-
-        <p id="loading-number">
-          0 / 50
-        </p>
-
-      </div>
-
-    </div>
-
-  </section>
-
-
-
-  <!-- =========================================
-       SCREEN 02
-       50 AI GARDENS
-  ========================================== -->
-
-  <section id="gallery-screen" class="screen">
-
-    <div class="browser-window">
-
-      <div class="browser-bar">
-        <span></span>
-        <span></span>
-        <span></span>
-      </div>
-
-      <div id="garden-gallery"></div>
-
-      <div class="gallery-message">
-
-        <h1>50 GARDENS.</h1>
-
-        <p>
-          NONE OF THESE ARE YOURS.
-        </p>
-
-        <button id="start-button">
-          BUILD YOUR OWN
-        </button>
-
-      </div>
-
-    </div>
-
-  </section>
-
-
-
-  <!-- =========================================
-       SCREEN 03
-       BUILD YOUR GARDEN
-  ========================================== -->
-
-  <section id="builder-screen" class="screen">
-
-    <div class="builder-layout">
-
-      <header class="builder-header">
-
-        <h1>BUILD YOUR OWN GARDEN</h1>
-
-        <div class="builder-info">
-          <span id="selected-count">0 SELECTED</span>
-          <span id="deleted-count">0 DELETED</span>
+        <div class="intro-info">
+          <p>50 PROMPTS</p>
+          <p>200 GARDEN IMAGES</p>
+          <p class="intro-red">NONE OF THEM ARE YOURS</p>
         </div>
 
-      </header>
+        <!-- 200장의 이미지가 한 칸씩 모여 "BUILD. YOUR OWN GARDEN" 글자를 이룸 -->
+        <div class="mosaic-window" id="mosaicWindow">
+          <div class="mosaic-scene" id="mosaicScene">
+            <div class="garden-grid" id="gardenGrid" role="img" aria-label="BUILD. YOUR OWN GARDEN"></div>
+          </div>
+        </div>
 
+        <!-- 판 전체를 덮는 유리 (호버한 이미지 둘레만 동그랗게 맑아짐) -->
+        <div class="glass" id="glass" aria-hidden="true">
+          <div class="glass-frost"></div>
+          <div class="glass-edge-blur"></div>
+          <div class="glass-sheen"></div>
+          <div class="glass-rim"></div>
+          <div class="glass-lens"></div>
+        </div>
 
-      <!-- WORK AREA -->
+        <h1 class="visually-hidden">BUILD YOUR OWN GARDEN</h1>
 
-      <main id="canvas">
+        <button class="start-button" id="startButton" type="button">[ START ]</button>
 
-        <p class="canvas-message">
-          DRAG SOMETHING HERE
-        </p>
+      </section>
 
-      </main>
+    </main>
 
+    <!-- ABYSS: 이미지가 떨어져 내려오는 아래 공간 -->
+    <section class="abyss" id="abyss" aria-hidden="true">
 
-      <!-- TOOL BAR -->
+      <!-- 선 아래로 나오는 fragment들 (선 위쪽은 잘려서 안 보임) -->
+      <div class="fragment-layer" id="fragmentLayer"></div>
 
-      <aside id="tools">
-
-        <button id="rotate-left">
-          ↺
-        </button>
-
-        <button id="rotate-right">
-          ↻
-        </button>
-
-        <button id="smaller">
-          −
-        </button>
-
-        <button id="bigger">
-          +
-        </button>
-
-        <button id="front">
-          FRONT
-        </button>
-
-        <button id="delete">
-          DELETE
-        </button>
-
-      </aside>
-
-
-      <!-- FRAGMENT PILE -->
-
-      <div id="fragment-area">
-
-        <p class="fragment-label">
-          AI FRAGMENTS
-        </p>
-
-        <div id="fragment-pile"></div>
-
+      <!-- 깊이감 있는 얇은 막: 선 위로 멀어지는 면 + 앞쪽 가장자리 -->
+      <div class="portal-line" id="portalLine">
+        <div class="portal-surface"></div>
+        <div class="portal-under"></div>
+        <div class="portal-glow"></div>
+        <div class="portal-flashes" id="portalFlashes"></div>
+        <div class="portal-edge"></div>
       </div>
 
+    </section>
 
-      <button id="finish-button">
-        FINISH
+  </div>
+
+  <!-- BUILDER: fragment가 쌓인 뒤 나타나는 정원 만들기 화면 -->
+  <section class="builder" id="builder" aria-label="Garden builder" hidden>
+
+    <div class="builder-bg" id="builderBg"></div>
+
+    <!-- 떨어진 fragment가 라이브러리로 날아가기 전 잠시 머무는 곳 -->
+    <div class="pile-layer" id="pileLayer"></div>
+
+    <!-- AI ASSET LIBRARY -->
+    <aside class="library ui" id="library" aria-label="AI asset library">
+      <p class="library-title">AI ASSET LIBRARY</p>
+      <div class="library-scroll" id="libraryScroll">
+        <div class="library-grid" id="libraryGrid"></div>
+      </div>
+    </aside>
+
+    <div class="work-panel ui" id="workPanel"></div>
+
+    <!-- 미리보기: 라이브러리에서 클릭한 조각을 크게 -->
+    <div class="preview ui" id="preview">
+      <img class="preview-image" id="previewImage" alt="" draggable="false" hidden />
+      <span class="preview-number" id="previewNumber"></span>
+      <span class="preview-empty" id="previewEmpty">PREVIEW</span>
+    </div>
+
+    <!-- 캔버스 툴 -->
+    <div class="toolbar ui" id="toolbar" role="toolbar" aria-orientation="vertical">
+      <button class="tool" type="button" data-tool="color" data-tip="CANVAS COLOR" aria-label="Canvas color">
+        <svg viewBox="0 0 18 18"><rect x="3" y="3" width="12" height="12" rx="2.5" class="tool-swatch" /></svg>
       </button>
-
+      <button class="tool" type="button" data-tool="duplicate" data-tip="DUPLICATE" data-key="D" aria-label="Duplicate" data-needs-selection>
+        <svg viewBox="0 0 18 18"><rect x="6.5" y="6.5" width="8.5" height="8.5" rx="1.5" /><path d="M11.5 6.5V4.5a1.5 1.5 0 0 0-1.5-1.5H4.5A1.5 1.5 0 0 0 3 4.5V10a1.5 1.5 0 0 0 1.5 1.5h2" /></svg>
+      </button>
+      <button class="tool" type="button" data-tool="rotate" data-tip="ROTATE 90°" aria-label="Rotate 90 degrees" data-needs-selection>
+        <svg viewBox="0 0 18 18"><path d="M14.6 9.4a5.6 5.6 0 1 1-1.7-4.2" /><path d="M13.4 2.4v3.1h-3.1" /></svg>
+      </button>
+      <button class="tool" type="button" data-tool="flip" data-tip="FLIP" aria-label="Flip horizontally" data-needs-selection>
+        <svg viewBox="0 0 18 18"><path d="M9 2.5v13" stroke-dasharray="1.6 1.9" /><path d="M6.6 5.2 2.8 13h3.8z" /><path d="M11.4 5.2l3.8 7.8h-3.8z" class="tool-fill" /></svg>
+      </button>
+      <button class="tool" type="button" data-tool="crop" data-tip="CROP" data-shortcut="Enter" aria-label="Crop" data-needs-single>
+        <svg viewBox="0 0 18 18"><path d="M5 2v11h11" /><path d="M2 5h11v11" /></svg>
+      </button>
+      <button class="tool" type="button" data-tool="cut" data-tip="CUT SHAPE" data-shortcut="L" aria-label="Cut into a shape" data-needs-single>
+        <svg viewBox="0 0 18 18"><path d="M9 3.2c3.6 0 6.3 1.7 6.3 3.9S12.6 11 9 11c-1 0-2-.1-2.8-.4" stroke-dasharray="2 1.8" /><path d="M5.1 9.7C3.6 9 2.7 8.1 2.7 7.1c0-1.6 1.6-3 4.1-3.6" stroke-dasharray="2 1.8" /><circle cx="5.2" cy="12.4" r="1.5" /><path d="M5.6 13.8c.4 1.3-.2 2.3-1.3 2.6" /></svg>
+      </button>
+      <button class="tool" type="button" data-tool="forward" data-tip="FORWARD" data-key="]" aria-label="Bring forward" data-needs-selection>
+        <svg viewBox="0 0 18 18"><rect x="3" y="7" width="8" height="8" rx="1.3" /><rect x="7" y="3" width="8" height="8" rx="1.3" class="tool-fill" /></svg>
+      </button>
+      <button class="tool" type="button" data-tool="backward" data-tip="BACKWARD" data-key="[" aria-label="Send backward" data-needs-selection>
+        <svg viewBox="0 0 18 18"><rect x="7" y="3" width="8" height="8" rx="1.3" class="tool-fill" /><rect x="3" y="7" width="8" height="8" rx="1.3" class="tool-cover" /></svg>
+      </button>
     </div>
+
+    <!-- 레이어 -->
+    <div class="layers ui" id="layers" aria-label="Layers">
+      <div class="layers-head">
+        <p class="layers-title">LAYERS</p>
+        <button class="layers-group" id="groupButton" type="button" disabled>GROUP</button>
+      </div>
+      <div class="layers-list" id="layersList" role="listbox" aria-multiselectable="true"></div>
+      <p class="layers-empty" id="layersEmpty">Drag fragments<br />onto the canvas</p>
+    </div>
+
+    <!-- 캔버스 (영역 밖은 잘림) -->
+    <div class="canvas ui" id="canvas">
+      <div class="canvas-stage" id="canvasStage"></div>
+    </div>
+
+    <!-- 선택 테두리 / 가이드 (잘리지 않도록 캔버스 위에 따로) -->
+    <div class="canvas-overlay" id="canvasOverlay">
+      <div class="guide guide-x" id="guideX"></div>
+      <div class="guide guide-y" id="guideY"></div>
+      <div class="sel-outlines" id="selOutlines"></div>
+      <div class="sel-frame" id="selFrame" hidden>
+        <span class="sel-rotate" data-sx="-1" data-sy="-1"></span>
+        <span class="sel-rotate" data-sx="1" data-sy="-1"></span>
+        <span class="sel-rotate" data-sx="-1" data-sy="1"></span>
+        <span class="sel-rotate" data-sx="1" data-sy="1"></span>
+        <span class="sel-edge" data-sx="0" data-sy="-1"></span>
+        <span class="sel-edge" data-sx="1" data-sy="0"></span>
+        <span class="sel-edge" data-sx="0" data-sy="1"></span>
+        <span class="sel-edge" data-sx="-1" data-sy="0"></span>
+        <span class="sel-handle" data-sx="-1" data-sy="-1"></span>
+        <span class="sel-handle" data-sx="1" data-sy="-1"></span>
+        <span class="sel-handle" data-sx="-1" data-sy="1"></span>
+        <span class="sel-handle" data-sx="1" data-sy="1"></span>
+      </div>
+      <div class="marquee" id="marquee" hidden></div>
+      <svg class="pen-path" id="penPath" hidden>
+        <path class="pen-fill" d="" />
+        <path class="pen-closing" d="" />
+        <path class="pen-line" d="" />
+        <path class="pen-rubber" d="" />
+        <g class="pen-handles"></g>
+        <g class="pen-anchors"></g>
+      </svg>
+      <div class="sel-label" id="selLabel" hidden></div>
+    </div>
+
+    <!-- 타이머 / 선택 개수 / FINISH -->
+    <div class="info ui" id="info">
+      <div class="info-stats">
+        <p><span class="info-num" id="timerText">00:00</span></p>
+        <p><span class="info-num" id="selectedCount">00</span> SELECTED</p>
+        <p>200 AI FRAGMENTS</p>
+      </div>
+      <button class="finish-button" id="finishButton" type="button">[ FINISH ]</button>
+    </div>
+
+    <!-- 캔버스 색상 + 스포이드 -->
+    <div class="popover" id="colorPopover" hidden>
+      <div class="swatches" id="swatches"></div>
+      <div class="popover-row">
+        <label class="custom-color">
+          <input type="color" id="colorInput" value="#ffffff" />
+          <span>CUSTOM</span>
+        </label>
+        <button class="eyedropper-button" id="eyedropperButton" type="button" aria-label="Pick color from screen">
+          <svg viewBox="0 0 18 18"><path d="M12.2 3.3a2 2 0 0 1 2.8 2.8l-1.9 1.9.8.8-1.3 1.3-3.9-3.9 1.3-1.3.8.8z" /><path d="M9.4 7.2 3.6 13v1.9h1.9l5.8-5.8" /></svg>
+          <span>PICK</span>
+        </button>
+      </div>
+      <p class="current-color" id="currentColor">#FFFFFF</p>
+    </div>
+
+    <!-- 스포이드: 클릭 전 커서 아래 색상 미리보기 -->
+    <div class="loupe" id="loupe" hidden>
+      <span class="loupe-swatch" id="loupeSwatch"></span>
+      <span class="loupe-hex" id="loupeHex">#FFFFFF</span>
+    </div>
+
+    <!-- 드래그 중인 조각 / 날아가는 조각 -->
+    <div class="drag-layer" id="dragLayer"></div>
 
   </section>
 
+  <!-- RESULT: FINISH 후 — 완성한 정원 / AI LIBRARY / HUMAN GALLERY -->
+  <section class="result" id="result" aria-label="Your garden" hidden>
 
+    <div class="result-shell" id="resultShell">
+      <div class="folders" id="folders">
 
-  <!-- =========================================
-       SCREEN 04
-       RESULT
-  ========================================== -->
+        <button class="back-button" id="backButton" type="button">[ ← BACK TO CANVAS ]</button>
 
-  <section id="result-screen" class="screen">
+        <!-- BUILD: 방금 만든 정원 -->
+        <div class="folder is-active" data-folder="build" style="--tab-x: 3%">
+          <button class="folder-tab" type="button" data-tab="build">BUILD</button>
+          <div class="build-view">
+            <div class="result-canvas" id="resultCanvas"></div>
 
-    <div class="result-container">
+            <div class="result-info">
+              <label class="title-field">
+                <span aria-hidden="true">[</span>
+                <input id="gardenTitle" type="text" maxlength="60" placeholder="TITLE YOUR GARDEN" autocomplete="off" spellcheck="false" />
+                <span aria-hidden="true">]</span>
+              </label>
 
-      <div class="result-preview">
+              <p class="result-time red" id="resultTime">00:00</p>
 
-        <h2>YOUR GARDEN</h2>
+              <dl class="result-stats">
+                <div class="red"><dt id="resultTotal">200</dt><dd>AI GARDENS</dd></div>
+                <div><dt class="red" id="resultSelected">00</dt><dd>SELECTED</dd></div>
+                <div><dt class="red" id="resultRejected">200</dt><dd>REJECTED</dd></div>
+                <div class="red result-one"><dt>1</dt><dd>GARDEN</dd></div>
+              </dl>
 
-        <div id="final-garden"></div>
-
-      </div>
-
-
-      <div class="result-information">
-
-        <label for="garden-name">
-          GIVE YOUR GARDEN A NAME
-        </label>
-
-        <input
-          type="text"
-          id="garden-name"
-          placeholder="MY GARDEN"
-        />
-
-
-        <div class="statistics">
-
-          <p>
-            50 AI GARDENS
-          </p>
-
-          <p>
-            100 AI FRAGMENTS
-          </p>
-
-          <p>
-            <span id="final-selected">0</span>
-            SELECTED
-          </p>
-
-          <p>
-            <span id="final-deleted">0</span>
-            DELETED
-          </p>
-
-          <p class="human-result">
-            1 HUMAN GARDEN
-          </p>
-
+              <button class="save-button" id="saveButton" type="button">SAVE &amp; SHARE</button>
+              <p class="save-note" id="saveNote" role="status"></p>
+            </div>
+          </div>
         </div>
 
-        <button id="restart-button">
-          START AGAIN
-        </button>
+        <!-- AI LIBRARY: 200장의 AI 정원 -->
+        <div class="folder" data-folder="library" style="--tab-x: 20%">
+          <button class="folder-tab" type="button" data-tab="library">AI LIBRARY</button>
+          <div class="folder-scroll">
+            <div class="card-grid" id="aiLibraryGrid"></div>
+          </div>
+        </div>
+
+        <!-- HUMAN GALLERY: 사람들이 저장한 정원 -->
+        <div class="folder" data-folder="gallery" style="--tab-x: 37%">
+          <button class="folder-tab" type="button" data-tab="gallery">HUMAN GALLERY</button>
+          <div class="folder-scroll">
+            <div class="card-grid" id="galleryGrid"></div>
+            <p class="gallery-empty" id="galleryEmpty">NO GARDENS HAVE BEEN SAVED YET.</p>
+          </div>
+        </div>
 
       </div>
+    </div>
 
+    <!-- 저장 완료 팝업 -->
+    <div class="save-dialog" id="saveDialog" role="dialog" aria-modal="true" aria-labelledby="saveDialogTitle" hidden>
+      <div class="save-dialog-box">
+        <button class="dialog-close" id="dialogClose" type="button" aria-label="Close">×</button>
+        <p class="save-dialog-title" id="saveDialogTitle">Your Garden Is Saved</p>
+        <div class="save-dialog-actions">
+          <button class="dialog-button" id="downloadButton" type="button">DOWNLOAD IMAGE</button>
+          <button class="dialog-button" id="viewGalleryButton" type="button">VIEW IN HUMAN GALLERY</button>
+        </div>
+      </div>
     </div>
 
   </section>
 
+  <script src="script.js"></script>
+  <script src="builder.js"></script>
+  <script src="result.js"></script>
 </body>
+
 </html>

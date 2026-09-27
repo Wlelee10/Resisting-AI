@@ -1,0 +1,8 @@
+# 원본 이미지 (웹사이트는 줄인 사본만 사용: images-small, images-medium, fragments-small, fragments-large)
+images/
+Fragments/
+
+# 저장된 휴먼 갤러리 (서버가 실행 중에 만듦)
+gardens/
+
+.DS_Store

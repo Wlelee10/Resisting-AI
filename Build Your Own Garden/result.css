@@ -1,0 +1,661 @@
+/* =========================================
+   BUILD YOUR OWN GARDEN
+   RESULT (완성한 정원 / AI LIBRARY / HUMAN GALLERY)
+========================================= */
+
+.result {
+  --result-red: #b3141e;
+  --folder-build: #ececec;
+  --folder-library: #e3e3e3;
+  --folder-gallery: #d7d7d7;
+
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+
+  background-color: #ffffff;
+  color: var(--ink);
+  font-size: 12px;
+  letter-spacing: 0.02em;
+
+  transition: background-color 700ms ease;
+}
+
+.result[hidden] {
+  display: none;
+}
+
+.red {
+  color: var(--result-red);
+}
+
+/* 빌더에서 넘어오는 동안: 캔버스만 보이고 나머지는 서서히 */
+.result.is-entering,
+.result.is-entering * {
+  transition: none !important;
+}
+
+.result.is-entering {
+  background-color: rgba(255, 255, 255, 0);
+}
+
+.result.is-entering .result-shell {
+  background-color: rgba(244, 244, 244, 0);
+  box-shadow: none;
+}
+
+.result.is-entering .folder {
+  background-color: transparent;
+}
+
+.result.is-entering .folder-tab,
+.result.is-entering .result-info,
+.result.is-entering .back-button {
+  opacity: 0;
+}
+
+/* 앞 폴더가 다 채워질 때까지 뒤 폴더의 몸통은 숨김 (탭만 보임) */
+.result.is-arriving .folder:not(.is-active),
+.result.is-returning .folder:not(.is-active) {
+  background-color: transparent;
+}
+
+.result.is-arriving .folder:not(.is-active) > :not(.folder-tab),
+.result.is-returning .folder:not(.is-active) > :not(.folder-tab) {
+  visibility: hidden;
+}
+
+/* 캔버스로 돌아가는 동안: 캔버스만 남고 나머지는 사라짐 */
+.result.is-returning {
+  background-color: rgba(255, 255, 255, 0);
+  pointer-events: none;
+  transition: background-color 600ms ease;
+}
+
+.result.is-returning .result-shell {
+  background-color: rgba(244, 244, 244, 0);
+  box-shadow: none;
+  transition-delay: 0s;
+}
+
+.result.is-returning .folder {
+  background-color: transparent;
+  transition-delay: 0s;
+}
+
+.result.is-returning .folder-tab::before {
+  background-color: transparent;
+  transition-delay: 0s;
+}
+
+.result.is-returning .folder-tab,
+.result.is-returning .result-info,
+.result.is-returning .back-button {
+  opacity: 0;
+  transition: opacity 300ms ease;
+}
+
+/* 빌더가 다시 나타남 */
+.builder.is-returning {
+  transition: opacity 600ms ease;
+}
+
+/* 빌더 퇴장 */
+.builder.is-leaving {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 600ms ease;
+}
+
+
+
+/* =========================================
+   SHELL · FOLDERS
+========================================= */
+
+.result-shell {
+  position: absolute;
+  inset: clamp(12px, 2.4vh, 28px) clamp(12px, 1.8vw, 36px);
+
+  border-radius: 44px;
+  background-color: #f4f4f4;
+  box-shadow:
+    inset 0 1px 0 #ffffff,
+    0 0 0 1px rgba(0, 0, 0, 0.03),
+    0 30px 60px -44px rgba(0, 0, 0, 0.3);
+
+  transition:
+    background-color 700ms ease 120ms,
+    box-shadow 700ms ease 120ms;
+}
+
+.folders {
+  position: absolute;
+  left: 50%;
+  top: calc(40px + 4vh);
+  bottom: 6%;
+  width: min(72%, 1500px);
+  transform: translateX(-50%);
+}
+
+.folder {
+  --folder-color: var(--folder-build);
+
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+
+  border-radius: 16px;
+  background-color: var(--folder-color);
+
+  transition:
+    transform 280ms cubic-bezier(0.16, 1, 0.3, 1),
+    background-color 700ms ease 220ms;
+}
+
+.folder[data-folder="build"] { --folder-color: var(--folder-build); z-index: 3; }
+.folder[data-folder="library"] { --folder-color: var(--folder-library); z-index: 2; }
+.folder[data-folder="gallery"] { --folder-color: var(--folder-gallery); z-index: 1; }
+
+/* 꺼내는 중: 앞 폴더 바로 뒤 */
+.folder.is-pulling {
+  z-index: 9;
+}
+
+.folder.is-active {
+  z-index: 10;
+}
+
+/* 뒤에 있는 폴더의 탭에 올리면 파일이 살짝 올라옴 */
+.folder:not(.is-active):has(> .folder-tab:hover) {
+  transform: translateY(-10px);
+}
+
+
+
+/* =========================================
+   FOLDER TAB (파일 인덱스)
+========================================= */
+
+.folder-tab {
+  position: absolute;
+  bottom: calc(100% - 1px);
+  left: var(--tab-x);
+  isolation: isolate;
+
+  width: clamp(110px, 11%, 160px);
+  height: 30px;
+  padding: 3px 0 0;
+
+  border: 0;
+  background: none;
+  color: #5c5c5c;
+  font-family: inherit;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  cursor: pointer;
+
+  transition: opacity 600ms ease 420ms, color 160ms ease;
+}
+
+/* 윗변이 좁은 사다리꼴 + 둥근 모서리 */
+.folder-tab::before {
+  content: "";
+  position: absolute;
+  inset: 0 -4px;
+  z-index: -1;
+
+  border-radius: 9px 9px 0 0;
+  background-color: var(--folder-color);
+  transform: perspective(60px) rotateX(12deg);
+  transform-origin: bottom;
+
+  transition: background-color 700ms ease 220ms;
+}
+
+.result.is-entering .folder-tab::before {
+  background-color: transparent;
+}
+
+.folder.is-active > .folder-tab {
+  color: var(--ink);
+  cursor: default;
+}
+
+.folder-tab:hover {
+  color: var(--ink);
+}
+
+.folder-tab:focus-visible {
+  outline: 1px solid var(--ink);
+  outline-offset: 2px;
+}
+
+/* 앞에 있는 폴더의 내용만 조작 */
+.folder:not(.is-active) > :not(.folder-tab) {
+  pointer-events: none;
+}
+
+
+
+/* 캔버스로 돌아가 수정 (저장하면 사라짐) */
+.back-button {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 8px);
+  z-index: 20;
+
+  padding: 4px 0;
+  border: 0;
+  background: none;
+  color: var(--ink);
+  font-family: inherit;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+
+  transition: opacity 600ms ease 420ms;
+}
+
+.back-button:hover {
+  opacity: 0.45;
+  transition-delay: 0s;
+  transition-duration: 180ms;
+}
+
+.back-button:focus-visible {
+  outline: 1px solid var(--ink);
+  outline-offset: 3px;
+}
+
+.back-button[hidden] {
+  display: none;
+}
+
+
+
+/* =========================================
+   BUILD: 완성한 정원 + 정보
+========================================= */
+
+.build-view {
+  position: absolute;
+  inset: clamp(16px, 2.6%, 30px);
+  container-type: size;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(28px, 4.5%, 64px);
+}
+
+.result-canvas {
+  position: relative;
+  flex: none;
+  width: min(100cqh, 62cqw);
+  aspect-ratio: 1;
+  overflow: hidden;
+
+  background: #ffffff;
+  transform-origin: 0 0;
+}
+
+.result-canvas .canvas-stage {
+  transition: none;
+}
+
+.result-canvas .canvas-item:hover {
+  outline: none;
+}
+
+.result-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+
+  transition: opacity 600ms ease 480ms;
+}
+
+/* 정원 이름: 직접 입력 */
+.title-field {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 3px;
+  max-width: 100%;
+  cursor: text;
+}
+
+.title-field input {
+  min-width: 0;
+  max-width: 100%;
+  padding: 0 0 2px;
+
+  border: 0;
+  border-bottom: 1px dashed transparent;
+  background: none;
+  color: var(--ink);
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: uppercase;
+  outline: none;
+
+  transition: border-color 160ms ease;
+}
+
+.title-field input::placeholder {
+  color: var(--ink);
+  opacity: 1;
+}
+
+.title-field input:hover,
+.title-field input:focus {
+  border-bottom-color: #9a9a9a;
+}
+
+.title-field input:focus::placeholder {
+  color: #a8a8a8;
+}
+
+.title-field input[readonly] {
+  border-bottom-color: transparent;
+  cursor: default;
+}
+
+.result-time {
+  margin: 28px 0 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.result-stats {
+  display: grid;
+  grid-template-columns: auto auto;
+  column-gap: 18px;
+  row-gap: 2px;
+  margin: 12px 0 0;
+}
+
+.result-stats > div {
+  display: contents;
+}
+
+.result-stats dt,
+.result-stats dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.result-stats .result-one dt,
+.result-stats .result-one dd {
+  padding-top: 12px;
+}
+
+.result-stats .result-one dt {
+  text-align: center;
+}
+
+.save-button {
+  margin-top: 26px;
+  padding: 7px 10px;
+
+  border: 0;
+  border-radius: 4px;
+  background: #d4d4d4;
+  color: var(--ink);
+  font: inherit;
+  letter-spacing: inherit;
+  cursor: pointer;
+
+  transition: background-color 160ms ease, color 160ms ease;
+}
+
+.save-button:hover:not(:disabled) {
+  background: #111111;
+  color: #ffffff;
+}
+
+.save-button:disabled {
+  cursor: default;
+}
+
+.save-button.is-saved {
+  color: #6a6a6a;
+}
+
+.save-button:focus-visible,
+.dialog-button:focus-visible,
+.dialog-close:focus-visible {
+  outline: 1px solid var(--ink);
+  outline-offset: 2px;
+}
+
+.save-note {
+  min-height: 1em;
+  margin: 8px 0 0;
+  font-size: 10px;
+  color: #8a8a8a;
+}
+
+
+
+/* =========================================
+   AI LIBRARY / HUMAN GALLERY (같은 격자)
+========================================= */
+
+.folder-scroll {
+  position: absolute;
+  top: 28px;
+  right: 14px;
+  bottom: 28px;
+  left: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+
+  /* 스크롤 막대를 띄운 만큼 빼서 격자는 폴더 가운데에 */
+  --pad: clamp(24px, 4.5%, 64px);
+  padding: max(4px, calc(var(--pad) - 28px)) max(8px, calc(var(--pad) - 18px)) 12px var(--pad);
+}
+
+.folder-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+
+.folder-scroll::-webkit-scrollbar-track {
+  margin: 6px 0;
+  background: transparent;
+}
+
+.folder-scroll::-webkit-scrollbar-thumb {
+  min-height: 90px;
+  border-radius: 2px;
+  background: #c4c4c4;
+}
+
+.folder-scroll::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* ::-webkit-scrollbar를 모르는 브라우저(Firefox) */
+@supports not selector(::-webkit-scrollbar) {
+  .folder-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: #c4c4c4 transparent;
+  }
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  column-gap: clamp(6px, 0.8%, 12px);
+}
+
+.card {
+  margin: 0;
+}
+
+.card-image {
+  aspect-ratio: 1;
+  overflow: hidden;
+  background: #ffffff;
+}
+
+.card-image img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+
+  opacity: 0;
+  transition: opacity 400ms ease;
+}
+
+.card.is-loaded .card-image img {
+  opacity: 1;
+}
+
+.card figcaption {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 16px 8px 30px;
+
+  font-size: 12px;
+  line-height: 1.35;
+  text-align: center;
+  overflow-wrap: anywhere;
+  font-variant-numeric: tabular-nums;
+}
+
+/* 방금 저장한 내 정원 */
+.card.is-mine .card-image {
+  outline: 2px solid #86bdff;
+  outline-offset: 3px;
+}
+
+.gallery-empty {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+
+  display: grid;
+  place-items: center;
+
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: #8a8a8a;
+  pointer-events: none;
+}
+
+.gallery-empty[hidden] {
+  display: none;
+}
+
+
+
+/* =========================================
+   SAVE DIALOG
+========================================= */
+
+.save-dialog {
+  position: fixed;
+  inset: 0;
+  z-index: 400;
+
+  display: grid;
+  place-items: center;
+  padding: 16px;
+
+  background: rgba(244, 244, 244, 0.55);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+}
+
+.save-dialog[hidden] {
+  display: none;
+}
+
+.save-dialog-box {
+  position: relative;
+  max-width: 100%;
+  padding: 36px 40px 28px;
+
+  border-radius: 22px;
+  background: #ffffff;
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.04),
+    0 30px 60px -30px rgba(0, 0, 0, 0.3);
+  text-align: center;
+}
+
+.save-dialog-title {
+  margin: 0 0 24px;
+  font-size: 20px;
+  letter-spacing: -0.01em;
+}
+
+.save-dialog-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+
+.dialog-button {
+  padding: 9px 14px;
+
+  border: 0;
+  border-radius: 6px;
+  background: #ececec;
+  color: var(--ink);
+  font-family: inherit;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+
+  transition: background-color 160ms ease, color 160ms ease;
+}
+
+.dialog-button:hover {
+  background: #111111;
+  color: #ffffff;
+}
+
+.dialog-close {
+  position: absolute;
+  top: 10px;
+  right: 14px;
+
+  border: 0;
+  background: none;
+  color: #8a8a8a;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+
+
+/* =========================================
+   RESPONSIVE
+========================================= */
+
+@media (max-width: 900px) {
+  .folders {
+    width: calc(100% - 32px);
+  }
+
+  .card-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .build-view {
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .result-canvas {
+    width: min(100cqw, 62cqh);
+  }
+}

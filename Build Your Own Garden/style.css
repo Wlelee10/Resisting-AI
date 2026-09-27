@@ -1,614 +1,763 @@
 /* =========================================
-   BASIC RESET
+   TOKENS
+========================================= */
+
+:root {
+  --page-bg: #ffffff;
+  --panel-bg: #f7f7f7;
+  --ink: #111111;
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* 유리 위의 미세한 그레인 (SVG 노이즈) */
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='1 0 0 0 0  1 0 0 0 0  1 0 0 0 0  0 0 0 0 0.07'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+
+
+/* =========================================
+   RESET
 ========================================= */
 
 * {
   box-sizing: border-box;
+}
+
+html,
+body {
   margin: 0;
   padding: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--page-bg);
+  color: var(--ink);
+  font-family: Arial, Helvetica, sans-serif;
 }
 
 body {
-  font-family: Arial, Helvetica, sans-serif;
-  background: #f7f7f4;
-  color: #111;
   overflow: hidden;
 }
 
-button,
-input {
-  font: inherit;
-}
 
 
 /* =========================================
-   SCREENS
+   PAGE
 ========================================= */
 
-.screen {
-  display: none;
-  width: 100vw;
+.intro-page {
+  width: 100%;
   height: 100vh;
-}
-
-.screen.active {
-  display: flex;
-}
-
-
-/* =========================================
-   FAKE BROWSER
-========================================= */
-
-.browser-window {
-  position: relative;
-
-  width: 92%;
-  height: 88%;
-
-  margin: auto;
-
-  border: 2px solid #111;
-
-  background: #fff;
-
-  overflow: hidden;
-}
-
-.small-window {
-  width: 65%;
-  height: 65%;
-}
-
-
-/* browser top bar */
-
-.browser-bar {
-  height: 32px;
-
-  display: flex;
-  align-items: center;
-
-  gap: 6px;
-
-  padding-left: 10px;
-
-  border-bottom: 2px solid #111;
-}
-
-.browser-bar span {
-  width: 8px;
-  height: 8px;
-
-  border: 1px solid #111;
-
-  border-radius: 50%;
-}
-
-
-/* =========================================
-   LOADING
-========================================= */
-
-#loading-screen {
-  align-items: center;
-  justify-content: center;
-}
-
-.loading-content {
-  height: calc(100% - 32px);
+  padding: clamp(14px, 2.4vw, 26px);
 
   display: flex;
   flex-direction: column;
 
-  align-items: center;
-  justify-content: center;
-
-  gap: 15px;
+  text-transform: uppercase;
 }
 
-.spinner {
-  width: 30px;
-  height: 30px;
-
-  border: 2px solid #bbb;
-  border-top-color: #111;
-
-  border-radius: 50%;
-
-  animation: spin 0.7s linear infinite;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-
-/* =========================================
-   GALLERY
-========================================= */
-
-#gallery-screen {
-  align-items: center;
-  justify-content: center;
-}
-
-#garden-gallery {
-  display: grid;
-
-  grid-template-columns: repeat(10, 1fr);
-  grid-template-rows: repeat(5, 1fr);
-
-  width: 100%;
-  height: calc(100% - 32px);
-
-  gap: 4px;
-
-  padding: 5px;
-}
-
-.garden-box {
-  position: relative;
-
-  border: 1px solid #111;
-
-  background: #eee;
-
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
   overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
 }
 
-
-/* random abstract garden shapes */
-
-.garden-box::before {
-  content: "";
-
-  position: absolute;
-
-  width: 40%;
-  height: 40%;
-
-  left: var(--x);
-  top: var(--y);
-
-  border: 1px solid #111;
-
-  border-radius: var(--radius);
-
-  transform: rotate(var(--rotation));
-}
-
-.garden-number {
-  position: absolute;
-
-  left: 4px;
-  bottom: 3px;
-
-  font-size: 9px;
-}
-
-
-/* central gallery text */
-
-.gallery-message {
-  position: absolute;
-
-  left: 50%;
-  top: 50%;
-
-  transform: translate(-50%, -50%);
-
-  padding: 28px 38px;
-
-  border: 2px solid #111;
-
-  background: rgba(255, 255, 255, 0.95);
-
-  text-align: center;
-}
-
-.gallery-message h1 {
-  font-size: 26px;
-  margin-bottom: 8px;
-}
-
-.gallery-message p {
-  font-size: 13px;
-  margin-bottom: 20px;
-}
-
-.gallery-message button {
-  background: #fff;
-
-  border: 1px solid #111;
-
-  padding: 10px 20px;
-
-  cursor: pointer;
-}
-
-.gallery-message button:hover {
-  background: #111;
-  color: #fff;
-}
 
 
 /* =========================================
-   BUILDER
+   MAIN PANEL (둥근 회색 판)
 ========================================= */
 
-#builder-screen {
-  background: #f5f5f2;
-}
+.garden-panel {
+  --red: #b3141e;
 
-.builder-layout {
   position: relative;
-
+  flex: 1;
+  min-height: 0;
   width: 100%;
-  height: 100%;
+
+  border-radius: clamp(20px, 2.8vw, 30px);
+  background: #f4f4f4;
 }
 
 
-/* HEADER */
 
-.builder-header {
-  height: 70px;
+/* =========================================
+   INFORMATION (왼쪽 위)
+========================================= */
+
+.intro-info {
+  position: absolute;
+  left: clamp(26px, 5.6vw, 56px);
+  top: clamp(26px, 5.6vw, 52px);
+  z-index: 3;
 
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  padding: 0 30px;
-
-  border-bottom: 1px solid #111;
-}
-
-.builder-header h1 {
-  font-size: 18px;
-  font-weight: 500;
-}
-
-.builder-info {
-  display: flex;
-  gap: 20px;
-
-  font-size: 11px;
-}
-
-
-/* =========================================
-   CANVAS
-========================================= */
-
-#canvas {
-  position: absolute;
-
-  left: 8%;
-  right: 8%;
-
-  top: 100px;
-  bottom: 180px;
-
-  border: 1px solid #111;
-
-  background: #fff;
-
-  overflow: hidden;
-}
-
-.canvas-message {
-  position: absolute;
-
-  left: 50%;
-  top: 50%;
-
-  transform: translate(-50%, -50%);
-
-  font-size: 12px;
-  color: #aaa;
+  flex-direction: column;
+  gap: clamp(12px, 1.6vw, 18px);
 
   pointer-events: none;
 }
 
+.intro-info p {
+  margin: 0;
+  font-size: clamp(11px, 1.05vw, 14px);
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: 0.01em;
+}
+
+.intro-info .intro-red {
+  color: var(--red);
+}
+
+
 
 /* =========================================
-   FRAGMENT AREA
+   MOSAIC WINDOW (글자 모양으로 놓인 200장의 이미지)
 ========================================= */
 
-#fragment-area {
+.mosaic-window {
   position: absolute;
-
-  left: 0;
-  bottom: 0;
-
-  width: 100%;
-  height: 160px;
-
-  border-top: 1px solid #111;
-
-  background: #f5f5f2;
+  left: clamp(14px, 2vw, 28px);
+  right: clamp(14px, 2vw, 28px);
+  top: clamp(24px, 4vw, 44px);
+  bottom: clamp(48px, 6.5vh, 64px);
+  z-index: 1;
 }
 
-.fragment-label {
+/* JS가 --cell(한 칸 크기)을 정함
+   유리 아래에 있는 느낌: 커서 반대쪽으로 아주 살짝 움직임 */
+.mosaic-scene {
+  --cell: 20px;
+
   position: absolute;
+  inset: 0;
 
-  left: 20px;
-  top: 10px;
-
-  font-size: 10px;
+  transform: translate3d(calc(var(--par-x, 0) * -8px), calc(var(--par-y, 0) * -6px), 0);
 }
 
-#fragment-pile {
-  position: relative;
+.garden-grid {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: calc(var(--cols, 35) * var(--cell));
+  height: calc(var(--rows, 16) * var(--cell));
+  transform: translate(-50%, -50%);
+}
 
+
+
+/* =========================================
+   TILE (한 칸 = 이미지 한 장)
+========================================= */
+
+.garden-tile,
+.lens-tile {
+  position: absolute;
+  left: calc(var(--col) * var(--cell));
+  top: calc(var(--row) * var(--cell));
+  width: calc(var(--cell) * 0.92);
+  height: calc(var(--cell) * 0.92);
+}
+
+.tile-image {
+  position: absolute;
+  inset: 0;
+
+  overflow: hidden;
+  border-radius: 1px;
+  background: #d8d8d8;
+}
+
+/* 커서 아래의 이미지: 살짝 커짐 (떠나면 천천히 돌아옴) */
+.garden-tile .tile-image {
+  transform: scale(1);
+  transition:
+    transform 520ms var(--ease-out),
+    box-shadow 520ms var(--ease-out);
+}
+
+.garden-tile.is-active {
+  z-index: 5;
+}
+
+.garden-tile.is-active .tile-image {
+  transform: scale(1.6);
+  box-shadow: 0 8px 18px -6px rgba(0, 0, 0, 0.28);
+  transition-duration: 300ms;
+}
+
+.tile-image img {
+  display: block;
   width: 100%;
   height: 100%;
+  object-fit: cover;
+
+  user-select: none;
+  pointer-events: none;
 }
 
 
+
 /* =========================================
-   FRAGMENTS
+   GLASS (판 전체를 덮는 서리 유리)
+   JS가 구멍 위치/크기(--hx, --hy, --hr)와 반사광 위치를 정함
 ========================================= */
+
+.glass {
+  --hx: -999px;
+  --hy: -999px;
+  --hr: 0px;
+
+  /* 호버한 이미지 둘레의 동그란 구멍 (가장자리는 부드럽게) */
+  --hole-mask: radial-gradient(
+    circle var(--hr) at var(--hx) var(--hy),
+    transparent 0%,
+    transparent 62%,
+    rgba(0, 0, 0, 0.25) 74%,
+    rgba(0, 0, 0, 0.7) 88%,
+    #000 100%
+  );
+
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+
+  border-radius: inherit;
+  overflow: hidden;
+  pointer-events: none;
+
+  transition: opacity 700ms ease;
+}
+
+.glass > div {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+}
+
+/* 1. 서리: 뒤를 흐리게 + 미세한 그레인 */
+.glass-frost {
+  background:
+    var(--grain),
+    linear-gradient(135deg,
+      rgba(255, 255, 255, 0.3) 0%,
+      rgba(242, 242, 242, 0.1) 55%,
+      rgba(255, 255, 255, 0.2) 100%);
+  background-size: 180px 180px, 100% 100%;
+
+  -webkit-backdrop-filter: blur(9px) saturate(0.78) brightness(1.06);
+  backdrop-filter: blur(9px) saturate(0.78) brightness(1.06);
+
+  -webkit-mask-image: var(--hole-mask);
+  mask-image: var(--hole-mask);
+}
+
+/* 2. 가장자리일수록 두꺼운 유리처럼 더 흐림 */
+.glass-edge-blur {
+  background: rgba(246, 246, 246, 0.2);
+
+  -webkit-backdrop-filter: blur(22px) saturate(0.6) brightness(1.1);
+  backdrop-filter: blur(22px) saturate(0.6) brightness(1.1);
+
+  -webkit-mask-image:
+    var(--hole-mask),
+    linear-gradient(to right, #000 0%, transparent 14%, transparent 86%, #000 100%),
+    linear-gradient(to bottom, #000 0%, transparent 20%, transparent 80%, #000 100%);
+  -webkit-mask-composite: source-in, source-over;
+
+  mask-image:
+    var(--hole-mask),
+    linear-gradient(to right, #000 0%, transparent 14%, transparent 86%, #000 100%),
+    linear-gradient(to bottom, #000 0%, transparent 20%, transparent 80%, #000 100%);
+  mask-composite: intersect, add;
+}
+
+/* 3. 표면 반사광: 커서 반대편에 맺히는 빛 + 사선 줄무늬 */
+.glass-sheen {
+  background:
+    radial-gradient(circle 42vmax at var(--light-x, 30%) var(--light-y, 22%),
+      rgba(255, 255, 255, 0.34),
+      rgba(255, 255, 255, 0) 62%),
+    linear-gradient(112deg,
+      transparent 28%,
+      rgba(255, 255, 255, 0.18) 38%,
+      transparent 45%,
+      transparent 60%,
+      rgba(255, 255, 255, 0.1) 66%,
+      transparent 72%);
+  background-size: 100% 100%, 150% 150%;
+  background-position:
+    0 0,
+    calc(50% + var(--par-x, 0) * 60px) calc(50% + var(--par-y, 0) * 40px);
+
+  -webkit-mask-image: var(--hole-mask);
+  mask-image: var(--hole-mask);
+}
+
+/* 4. 유리 두께 (베벨): 위는 밝고 아래는 살짝 그늘 */
+.glass-rim {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.95),
+    inset 1px 0 0 rgba(255, 255, 255, 0.5),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.06),
+    inset -1px 0 0 rgba(0, 0, 0, 0.03),
+    inset 0 26px 38px -30px rgba(255, 255, 255, 0.95),
+    inset 0 -30px 42px -34px rgba(0, 0, 0, 0.16),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.18);
+}
+
+/* 5. 구멍 테두리: 유리가 굴절하는 얇은 고리 */
+.glass .glass-lens {
+  inset: auto;
+  left: 0;
+  top: 0;
+
+  width: calc(var(--hr) * 1.62);
+  height: calc(var(--hr) * 1.62);
+  border-radius: 50%;
+
+  transform: translate3d(var(--hx), var(--hy), 0) translate(-50%, -50%);
+
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.32),
+    inset 0 2px 2px rgba(255, 255, 255, 0.55),
+    inset 0 -3px 6px rgba(0, 0, 0, 0.1),
+    inset 0 0 14px rgba(255, 255, 255, 0.16),
+    0 8px 20px -10px rgba(0, 0, 0, 0.2);
+}
+
+/* 렌즈 가장자리의 미세한 색수차 */
+.glass .glass-lens::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow:
+    inset 2px 0 3px -1px rgba(255, 70, 130, 0.18),
+    inset -2px 0 3px -1px rgba(60, 150, 255, 0.18),
+    inset 0 2px 3px -1px rgba(255, 220, 90, 0.1);
+}
+
+/* 떨어지기 시작하면 유리가 걷힘 */
+body.is-falling .glass {
+  opacity: 0;
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .glass-frost {
+    background: var(--grain), rgba(244, 244, 244, 0.86);
+  }
+
+  .glass-edge-blur {
+    background: rgba(247, 247, 247, 0.6);
+  }
+}
+
+
+
+/* =========================================
+   START
+========================================= */
+
+.start-button {
+  position: absolute;
+  left: 50%;
+  bottom: clamp(18px, 3.2vh, 28px);
+  z-index: 3;
+  transform: translateX(-50%);
+
+  /* 기본 버튼 모양 제거 */
+  padding: 0;
+  border: 0;
+  background: none;
+  font-family: inherit;
+
+  color: var(--red);
+  font-size: clamp(11px, 1.05vw, 14px);
+  font-weight: 400;
+  text-decoration: none;
+  white-space: nowrap;
+
+  cursor: pointer;
+  transition: opacity 180ms ease;
+}
+
+.start-button:hover {
+  opacity: 0.5;
+}
+
+.start-button:focus-visible {
+  outline: 1px solid var(--red);
+  outline-offset: 4px;
+}
+
+
+
+/* =========================================
+   OPENING (첫 화면 전 영상)
+   영상이 흰 화면으로 끝나면 같은 흰 배경 위로 인트로가 페이드인
+========================================= */
+
+.opening {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+
+  background: #ffffff;
+}
+
+.opening[hidden] {
+  display: none;
+}
+
+.opening-video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: #ffffff;
+}
+
+.opening-sound {
+  position: absolute;
+  right: 34px;
+  bottom: 28px;
+
+  padding: 7px 11px;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.78);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+
+  color: var(--ink);
+  font-family: inherit;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.opening-sound[hidden] {
+  display: none;
+}
+
+.opening.is-done {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 400ms ease;
+}
+
+body.is-opening .world {
+  opacity: 0;
+}
+
+.world {
+  transition: opacity 1800ms cubic-bezier(0.33, 0, 0.2, 1);
+}
+
+
+
+/* =========================================
+   WORLD (카메라가 움직이는 전체 세계)
+========================================= */
+
+.world {
+  position: relative;
+  width: 100%;
+}
+
+
+
+/* =========================================
+   COLLAPSE (START 클릭 → 이미지가 무너지며 떨어짐)
+========================================= */
+
+body.is-falling {
+  overflow: hidden;
+}
+
+/* 떨어지는 동안에는 이미지가 유리창 밖으로 나갈 수 있게 */
+body.is-falling .mosaic-window {
+  overflow: visible;
+  pointer-events: none;
+}
+
+body.is-falling .world,
+body.is-falling .garden-tile {
+  will-change: transform;
+}
+
+body.is-falling .start-button {
+  pointer-events: none;
+  opacity: 0.42;
+}
+
+
+
+/* =========================================
+   ABYSS (인트로 아래의 공간 — 선과 바닥)
+========================================= */
+
+.abyss {
+  --line-top: 42%;
+
+  display: none;
+  position: relative;
+  width: 100%;
+  height: 100vh;
+
+  /* 아래로 내려갈수록 살짝 어두워짐 → 빛이 잘 보이도록 */
+  background: linear-gradient(
+    to bottom,
+    var(--page-bg) 0%,
+    #efefef 36%,
+    #e9e9e9 100%
+  );
+}
+
+body.is-falling .abyss {
+  display: block;
+}
+
+
+
+/* =========================================
+   PORTAL LINE
+   선 위로 멀어지는 얇은 막(원근감) + 앞쪽 가장자리 선
+   이미지는 막 속으로 스며들고, 선 아래에서 fragment로 번져 나옴
+========================================= */
+
+.portal-line {
+  --energy: 0;
+  --depth: 84px;                 /* 막이 선 위로 멀어지는 높이 */
+  --sides: linear-gradient(to right, transparent 0%, #000 14%, #000 86%, transparent 100%);
+
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: var(--line-top);
+  height: 0;
+  z-index: 30;
+
+  pointer-events: none;
+}
+
+.portal-line > * {
+  position: absolute;
+  left: 3%;
+  right: 3%;
+}
+
+/* 멀어지는 면: 앞쪽은 또렷하고 뒤로 갈수록 흐려짐 · 원근으로 좁아짐 */
+.portal-surface {
+  bottom: 0;
+  height: var(--depth);
+
+  clip-path: polygon(9% 0, 91% 0, 100% 100%, 0 100%);
+
+  background:
+    /* 원근에 맞춰 촘촘해지는 결 */
+    linear-gradient(to top,
+      rgba(0, 0, 0, 0.05) 0 1px, transparent 1px 13px,
+      rgba(0, 0, 0, 0.035) 13px 14px, transparent 14px 32px,
+      rgba(0, 0, 0, 0.025) 32px 33px, transparent 33px 50px,
+      rgba(0, 0, 0, 0.018) 50px 51px, transparent 51px 64px,
+      rgba(0, 0, 0, 0.012) 64px 65px, transparent 65px),
+    linear-gradient(to top,
+      rgba(255, 255, 255, 0.72) 0%,
+      rgba(246, 246, 246, 0.42) 34%,
+      rgba(240, 240, 240, 0.12) 72%,
+      rgba(240, 240, 240, 0) 100%);
+
+  -webkit-mask-image: linear-gradient(to top, #000 0%, rgba(0, 0, 0, 0.55) 45%, transparent 100%), var(--sides);
+  -webkit-mask-composite: source-in;
+  mask-image: linear-gradient(to top, #000 0%, rgba(0, 0, 0, 0.55) 45%, transparent 100%), var(--sides);
+  mask-composite: intersect;
+}
+
+/* 막 아래로 드리운 옅은 그림자 */
+.portal-under {
+  top: 0;
+  height: 70px;
+
+  background: linear-gradient(to bottom,
+    rgba(0, 0, 0, 0.075) 0%,
+    rgba(0, 0, 0, 0.03) 28%,
+    rgba(0, 0, 0, 0) 100%);
+
+  -webkit-mask-image: var(--sides);
+  mask-image: var(--sides);
+}
+
+/* 앞쪽 가장자리: 가는 선 + 바로 아래 빛 한 줄 */
+.portal-edge {
+  top: -0.5px;
+  height: 1px;
+
+  background: rgba(0, 0, 0, 0.3);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.95),
+    0 -1px 0 rgba(255, 255, 255, 0.5);
+
+  -webkit-mask-image: var(--sides);
+  mask-image: var(--sides);
+}
+
+/* 이미지가 많이 들어갈수록 막 전체가 은은하게 밝아짐 */
+.portal-glow {
+  top: -26px;
+  height: 36px;
+
+  background: radial-gradient(ellipse 50% 60% at 50% 72%,
+    rgba(255, 255, 255, 1) 0%,
+    rgba(255, 255, 255, 0.55) 45%,
+    rgba(255, 255, 255, 0) 100%);
+
+  opacity: calc(var(--energy) * 0.9);
+  filter: blur(4px);
+
+  -webkit-mask-image: var(--sides);
+  mask-image: var(--sides);
+}
+
+/* 물결은 막(선 위쪽) 위에서만 퍼짐 */
+.portal-flashes {
+  bottom: 0;
+  height: var(--depth);
+  overflow: hidden;
+}
+
+
+
+/* =========================================
+   PORTAL RIPPLE (이미지가 막을 통과할 때 퍼지는 물결)
+========================================= */
+
+.portal-flash {
+  position: absolute;
+  bottom: 0;
+  width: var(--flash-w, 120px);
+  height: calc(var(--flash-w, 120px) * 0.2);
+
+  transform: translate(-50%, 50%);
+  pointer-events: none;
+}
+
+/* 원근으로 납작한 동심원 두 겹 */
+.portal-flash::before,
+.portal-flash::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.95);
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.05),
+    inset 0 0 12px rgba(255, 255, 255, 0.6);
+
+  opacity: 0;
+  transform: scale(0.15);
+  animation: portal-ripple 1100ms cubic-bezier(0.2, 0.7, 0.3, 1) forwards;
+}
+
+.portal-flash::after {
+  border-color: rgba(255, 255, 255, 0.7);
+  animation-delay: 150ms;
+  animation-duration: 1300ms;
+}
+
+@keyframes portal-ripple {
+  0% {
+    opacity: 0;
+    transform: scale(0.15);
+  }
+
+  12% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(1.7);
+  }
+}
+
+
+
+/* =========================================
+   FRAGMENTS (선 아래로 나와서 바닥에 쌓임)
+========================================= */
+
+.fragment-layer {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: var(--line-top);
+  bottom: 0;
+  z-index: 2;
+
+  /* 선 위쪽으로는 보이지 않음 → 선 아래에서 서서히 번져 나오는 느낌 */
+  overflow: hidden;
+  pointer-events: none;
+
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, rgba(0, 0, 0, 0.35) 10px, #000 34px);
+  mask-image: linear-gradient(to bottom, transparent 0, rgba(0, 0, 0, 0.35) 10px, #000 34px);
+}
 
 .fragment {
   position: absolute;
+  left: 0;
+  top: 0;
 
-  width: 45px;
-  height: 45px;
+  visibility: hidden;
+  transform-origin: 50% 50%;
+  will-change: transform;
+}
 
-  cursor: grab;
+.fragment.is-visible {
+  visibility: visible;
+}
+
+.fragment img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 
   user-select: none;
-
-  touch-action: none;
-
-  border: 1.5px solid #111;
-
-  background: #fff;
+  pointer-events: none;
 }
 
-.fragment:active {
-  cursor: grabbing;
-}
-
-.fragment.selected {
-  outline: 2px dashed #111;
-  outline-offset: 3px;
-}
-
-
-/* SHAPE TYPES */
-
-.circle {
-  border-radius: 50%;
-}
-
-.rectangle {
-  width: 65px;
-  height: 32px;
-}
-
-.oval {
-  width: 70px;
-  height: 35px;
-
-  border-radius: 50%;
-}
-
-.triangle {
-  width: 0;
-  height: 0;
-
-  border-left: 25px solid transparent;
-  border-right: 25px solid transparent;
-
-  border-bottom: 45px solid #fff;
-
-  border-top: none;
-
-  background: transparent;
-}
-
-.blob {
-  border-radius:
-    60% 40% 70% 30%
-    / 50% 60% 40% 50%;
-}
 
 
 /* =========================================
-   TOOLS
+   REDUCED MOTION
 ========================================= */
 
-#tools {
-  position: absolute;
-
-  top: 110px;
-  left: 20px;
-
-  display: flex;
-  flex-direction: column;
-
-  gap: 6px;
+@media (prefers-reduced-motion: reduce) {
+  .mosaic-scene,
+  .garden-tile .tile-image {
+    transform: none;
+    transition: none;
+  }
 }
 
-#tools button {
-  width: 58px;
-  min-height: 32px;
-
-  background: #fff;
-
-  border: 1px solid #111;
-
-  cursor: pointer;
-
-  font-size: 10px;
-}
-
-#tools button:hover {
-  background: #111;
-  color: #fff;
-}
-
-
-/* =========================================
-   FINISH
-========================================= */
-
-#finish-button {
-  position: absolute;
-
-  right: 25px;
-  bottom: 180px;
-
-  padding: 12px 25px;
-
-  border: 1px solid #111;
-
-  background: #fff;
-
-  cursor: pointer;
-}
-
-#finish-button:hover {
-  background: #111;
-  color: #fff;
-}
-
-
-/* =========================================
-   RESULT
-========================================= */
-
-#result-screen {
-  align-items: center;
-  justify-content: center;
-}
-
-.result-container {
-  display: grid;
-
-  grid-template-columns: 2fr 1fr;
-
-  width: 85%;
-  height: 75%;
-
-  border: 2px solid #111;
-
-  background: #fff;
-}
-
-.result-preview {
-  padding: 30px;
-
-  border-right: 1px solid #111;
-}
-
-.result-preview h2 {
-  margin-bottom: 20px;
-
-  font-size: 18px;
-}
-
-#final-garden {
-  position: relative;
-
-  width: 100%;
-  height: calc(100% - 40px);
-
-  overflow: hidden;
-
-  border: 1px solid #111;
-}
-
-.result-information {
-  padding: 35px;
-
-  display: flex;
-  flex-direction: column;
-}
-
-.result-information label {
-  font-size: 11px;
-
-  margin-bottom: 10px;
-}
-
-#garden-name {
-  width: 100%;
-
-  padding: 12px;
-
-  border: 1px solid #111;
-
-  background: transparent;
-
-  margin-bottom: 40px;
-}
-
-.statistics {
-  display: flex;
-  flex-direction: column;
-
-  gap: 14px;
-
-  font-size: 13px;
-}
-
-.human-result {
-  margin-top: 15px;
-
-  font-weight: bold;
-
-  font-size: 18px;
-}
-
-#restart-button {
-  margin-top: auto;
-
-  padding: 12px;
-
-  border: 1px solid #111;
-
-  background: #fff;
-
-  cursor: pointer;
-}
-
-#restart-button:hover {
-  background: #111;
-  color: #fff;
-}
 
 
 /* =========================================
    RESPONSIVE
 ========================================= */
 
+/* 좁은 화면: 글자가 왼쪽 위 정보 아래로 내려감 */
 @media (max-width: 700px) {
-
-  #garden-gallery {
-    grid-template-columns: repeat(5, 1fr);
-    grid-template-rows: repeat(10, 1fr);
+  .mosaic-window {
+    top: 120px;
   }
-
-  .result-container {
-    width: 94%;
-    height: 90%;
-
-    grid-template-columns: 1fr;
-    grid-template-rows: 1fr auto;
-  }
-
-  .result-preview {
-    border-right: none;
-    border-bottom: 1px solid #111;
-  }
-
-  .result-information {
-    padding: 20px;
-  }
-
 }
