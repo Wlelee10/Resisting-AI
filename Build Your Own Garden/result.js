@@ -53,9 +53,31 @@
 
   /* =========================================
      STORE
-     server.py로 열면 모두가 같은 휴먼 갤러리를 공유
-     (서버 없이 열면 이 브라우저 안에만 저장)
+     config.js에 Supabase가 설정되어 있으면 → 모든 방문자가 같은 휴먼 갤러리 (GitHub Pages에서도)
+     아니면 server.py로 열었을 때 → 그 서버를 함께 씀
+     둘 다 아니면 → 이 브라우저 안에만 저장
   ========================================= */
+
+  const cloud = window.GARDEN_CLOUD ?? {};
+  const cloudBase = String(cloud.url ?? "").trim().replace(/\/+$/, "");
+  const cloudKey = String(cloud.key ?? "").trim();
+  const CLOUD_BUCKET = "gardens";
+
+  const cloudHeaders = (extra = {}) => ({ apikey: cloudKey, Authorization: `Bearer ${cloudKey}`, ...extra });
+  const cloudImage = (file) => `${cloudBase}/storage/v1/object/public/${CLOUD_BUCKET}/${encodeURIComponent(file)}`;
+  const fromCloud = (row) => ({
+    id: String(row.id),
+    title: row.title,
+    fragments: row.fragments,
+    seconds: row.seconds,
+    image: cloudImage(row.image),
+    createdAt: Date.parse(row.created_at)
+  });
+
+  function newFileName() {
+    const id = window.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+    return `${id}.jpg`;
+  }
 
   // 제목 없이 저장된 정원을 한 번 정리 (이 브라우저에 저장된 것)
   try {
@@ -75,6 +97,10 @@
 
     async detect() {
       if (this.mode) return this.mode;
+      if (cloudBase && cloudKey) {
+        this.mode = "cloud";
+        return this.mode;
+      }
       try {
         const response = await fetch("api/gardens", { cache: "no-store" });
         const type = response.headers.get("content-type") ?? "";
@@ -86,7 +112,15 @@
     },
 
     async list() {
-      if ((await this.detect()) === "server") {
+      if ((await this.detect()) === "cloud") {
+        const response = await fetch(
+          `${cloudBase}/rest/v1/gardens?select=id,title,fragments,seconds,image,created_at&order=created_at.asc`,
+          { headers: cloudHeaders(), cache: "no-store" }
+        );
+        if (!response.ok) throw new Error("Could not load the gallery.");
+        return (await response.json()).map(fromCloud);
+      }
+      if (this.mode === "server") {
         const response = await fetch("api/gardens", { cache: "no-store" });
         if (!response.ok) throw new Error("Could not load the gallery.");
         return response.json();
@@ -99,7 +133,34 @@
     },
 
     async save(entry, board) {
-      if ((await this.detect()) === "server") {
+      if ((await this.detect()) === "cloud") {
+        // 1. 이미지 올리기 (1600px JPEG — 화질은 유지하면서 가볍게)
+        const blob = await new Promise((resolve) => board.toBlob(resolve, "image/jpeg", 0.92));
+        const file = newFileName();
+        const upload = await fetch(`${cloudBase}/storage/v1/object/${CLOUD_BUCKET}/${file}`, {
+          method: "POST",
+          headers: cloudHeaders({ "Content-Type": "image/jpeg", "x-upsert": "false" }),
+          body: blob
+        });
+        if (!upload.ok) throw new Error("The garden image could not be uploaded.");
+
+        // 2. 목록에 한 줄 추가
+        const insert = await fetch(`${cloudBase}/rest/v1/gardens`, {
+          method: "POST",
+          headers: cloudHeaders({ "Content-Type": "application/json", Prefer: "return=representation" }),
+          body: JSON.stringify({
+            title: entry.title,
+            fragments: entry.fragments,
+            seconds: entry.seconds,
+            image: file
+          })
+        });
+        if (!insert.ok) throw new Error("The garden could not be saved.");
+        const [row] = await insert.json();
+        return fromCloud(row);
+      }
+
+      if (this.mode === "server") {
         const response = await fetch("api/gardens", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
