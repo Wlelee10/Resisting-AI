@@ -24,6 +24,7 @@ const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 const opening = document.querySelector("#opening");
 const openingVideo = document.querySelector("#openingVideo");
 const openingSound = document.querySelector("#openingSound");
+const openingPlay = document.querySelector("#openingPlay");
 
 function endOpening() {
   if (!document.body.classList.contains("is-opening")) return;
@@ -44,6 +45,21 @@ function unmuteOpening() {
   if (!openingVideo) return;
   openingVideo.muted = false;
   openingSound.hidden = true;
+  // 멈춰 있었으면(자동 재생이 막혔으면) 클릭한 김에 소리와 함께 재생
+  if (openingVideo.paused) {
+    openingPlay.hidden = true;
+    openingVideo.play().catch(() => { openingPlay.hidden = false; });
+  }
+}
+
+// 사파리는 소리 있는 자동 재생을 절대 허용하지 않으므로 처음부터 소리 없이 시작
+const isSafariBrowser = /^((?!chrome|chromium|android|crios|fxios|edg).)*safari/i.test(navigator.userAgent);
+
+async function playMuted() {
+  openingVideo.muted = true;
+  openingVideo.setAttribute("muted", "");
+  await openingVideo.play();
+  openingSound.hidden = false;
 }
 
 async function playOpening() {
@@ -52,28 +68,26 @@ async function playOpening() {
     return;
   }
 
+  // 파일을 아예 불러올 수 없을 때만 건너뜀 (느리게 받아지는 중이면 기다림)
   openingVideo.addEventListener("ended", endOpening);
   openingVideo.addEventListener("error", endOpening);
   opening.addEventListener("click", unmuteOpening);
 
-  // 영상을 불러오지 못하면 기다리지 않고 첫 페이지로
-  const watchdog = setTimeout(() => {
-    if (openingVideo.currentTime === 0) endOpening();
-  }, 12000);
-  openingVideo.addEventListener("playing", () => clearTimeout(watchdog), { once: true });
-
   try {
-    openingVideo.muted = false;
-    await openingVideo.play();
-  } catch {
-    try {
-      openingVideo.muted = true;
-      await openingVideo.play();
-      openingSound.hidden = false;
-    } catch {
-      clearTimeout(watchdog);
-      endOpening();
+    if (isSafariBrowser) {
+      await playMuted();
+    } else {
+      try {
+        openingVideo.muted = false;
+        await openingVideo.play();
+      } catch {
+        await playMuted();
+      }
     }
+  } catch {
+    // 소리 없는 자동 재생까지 막힘 → 누르면 소리와 함께 재생
+    openingSound.hidden = true;
+    openingPlay.hidden = false;
   }
 }
 
