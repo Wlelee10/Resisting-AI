@@ -583,7 +583,8 @@
     document.body.appendChild(link);
     link.click();
     link.remove();
-    setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+    // 사파리는 다운로드를 조금 늦게 시작하므로 넉넉히 기다렸다가 정리
+    setTimeout(() => URL.revokeObjectURL(link.href), 60000);
   });
 
   viewGalleryButton.addEventListener("click", async () => {
