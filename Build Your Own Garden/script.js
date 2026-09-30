@@ -58,8 +58,16 @@ const isSafariBrowser = /^((?!chrome|chromium|android|crios|fxios|edg).)*safari/
 async function playMuted() {
   openingVideo.muted = true;
   openingVideo.setAttribute("muted", "");
-  await openingVideo.play();
-  openingSound.hidden = false;
+  if (openingVideo.paused) await openingVideo.play();
+}
+
+// 재생 여부는 play()의 답이 아니라 실제 상태로 판단
+// (사파리는 autoplay로 이미 재생 중일 때 play() 요청을 "취소됨"으로 거절하기도 함)
+function showPlayIfStopped() {
+  if (!document.body.classList.contains("is-opening")) return;
+  if (!openingVideo.paused) return;
+  openingSound.hidden = true;
+  openingPlay.hidden = false;
 }
 
 async function playOpening() {
@@ -73,6 +81,12 @@ async function playOpening() {
   openingVideo.addEventListener("error", endOpening);
   opening.addEventListener("click", unmuteOpening);
 
+  // 실제로 재생되기 시작하면: PLAY는 숨기고, 소리가 꺼져 있으면 SOUND ON
+  openingVideo.addEventListener("playing", () => {
+    openingPlay.hidden = true;
+    openingSound.hidden = !openingVideo.muted;
+  });
+
   try {
     if (isSafariBrowser) {
       await playMuted();
@@ -85,18 +99,18 @@ async function playOpening() {
       }
     }
   } catch {
-    // 아직 준비가 덜 돼서 막혔을 수 있으니, 재생할 수 있게 되면 한 번 더 시도
+    // 아직 준비가 덜 됐을 수 있으니, 재생할 수 있게 되면 한 번 더 시도
     try {
       if (openingVideo.readyState < 3) {
         await new Promise((resolve) => openingVideo.addEventListener("canplay", resolve, { once: true }));
       }
       await playMuted();
     } catch {
-      // 소리 없는 자동 재생까지 막힘 → 누르면 소리와 함께 재생
-      openingSound.hidden = true;
-      openingPlay.hidden = false;
+      // 거절돼도 곧바로 PLAY를 띄우지 않고, 잠시 뒤에도 멈춰 있을 때만 띄움
     }
   }
+
+  setTimeout(showPlayIfStopped, 1500);
 }
 
 playOpening();
