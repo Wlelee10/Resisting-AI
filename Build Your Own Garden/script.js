@@ -356,7 +356,9 @@ function animateGlass() {
 
   glass.style.setProperty("--hx", `${hole.x.toFixed(1)}px`);
   glass.style.setProperty("--hy", `${hole.y.toFixed(1)}px`);
-  glass.style.setProperty("--hr", `${hole.r.toFixed(1)}px`);
+  // 반지름 0인 그라디언트는 사파리에서 유리 전체를 지워 버리므로 최소 1px
+  glass.style.setProperty("--hr", `${Math.max(hole.r, 1).toFixed(1)}px`);
+  glass.classList.toggle("has-hole", hole.r > 2);
   glass.style.setProperty("--par-x", parallax.x.toFixed(4));
   glass.style.setProperty("--par-y", parallax.y.toFixed(4));
   glass.style.setProperty("--light-x", `${(30 - parallax.x * 26).toFixed(2)}%`);
@@ -426,8 +428,19 @@ function startCollapse() {
     `rgba(0, 0, 0, 0.4) calc(100vh + ${(clipY - 10).toFixed(1)}px), ` +
     `transparent calc(100vh + ${clipY.toFixed(1)}px))`;
 
+  // 마스크를 창 밖까지 넓힐 수 없는 브라우저(사파리)는 선에서 곧게 자름
+  // (선 위의 안개 막이 경계를 가려 줌)
+  // (사파리는 no-clip을 지원한다고 답하지만 실제로는 창 밖을 잘라 버림)
+  const isSafari = /^((?!chrome|chromium|android|crios|fxios|edg).)*safari/i.test(navigator.userAgent);
+  const softEdge = !isSafari && CSS.supports("mask-clip", "no-clip");
+  if (!softEdge) {
+    scene.style.clipPath =
+      `polygon(-100vw -100vh, calc(100% + 100vw) -100vh, ` +
+      `calc(100% + 100vw) ${clipY.toFixed(1)}px, -100vw ${clipY.toFixed(1)}px)`;
+  }
+
   // 떨어지며 창 밖으로 벗어나는 타일도 보이도록 마스크를 넉넉하게
-  Object.assign(scene.style, {
+  if (softEdge) Object.assign(scene.style, {
     webkitMaskImage: maskImage,
     maskImage,
     webkitMaskSize: "calc(100% + 200vw) calc(100% + 200vh)",

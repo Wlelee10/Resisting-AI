@@ -213,7 +213,7 @@ body {
 .glass {
   --hx: -999px;
   --hy: -999px;
-  --hr: 0px;
+  --hr: 1px;
 
   /* 호버한 이미지 둘레의 동그란 구멍 (가장자리는 부드럽게) */
   --hole-mask: radial-gradient(
@@ -331,6 +331,11 @@ body {
     inset 0 -3px 6px rgba(0, 0, 0, 0.1),
     inset 0 0 14px rgba(255, 255, 255, 0.16),
     0 8px 20px -10px rgba(0, 0, 0, 0.2);
+}
+
+/* 구멍이 닫혀 있을 때는 고리도 숨김 */
+.glass:not(.has-hole) .glass-lens {
+  opacity: 0;
 }
 
 /* 렌즈 가장자리의 미세한 색수차 */
