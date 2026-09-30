@@ -85,9 +85,17 @@ async function playOpening() {
       }
     }
   } catch {
-    // 소리 없는 자동 재생까지 막힘 → 누르면 소리와 함께 재생
-    openingSound.hidden = true;
-    openingPlay.hidden = false;
+    // 아직 준비가 덜 돼서 막혔을 수 있으니, 재생할 수 있게 되면 한 번 더 시도
+    try {
+      if (openingVideo.readyState < 3) {
+        await new Promise((resolve) => openingVideo.addEventListener("canplay", resolve, { once: true }));
+      }
+      await playMuted();
+    } catch {
+      // 소리 없는 자동 재생까지 막힘 → 누르면 소리와 함께 재생
+      openingSound.hidden = true;
+      openingPlay.hidden = false;
+    }
   }
 }
 
