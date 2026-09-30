@@ -9,6 +9,6 @@
 ========================================= */
 
 window.GARDEN_CLOUD = {
-  url: "",
-  key: ""
+  url: "https://tahayiewfmjqcavfcaum.supabase.co",
+  key: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRhaGF5aWV3Zm1qcWNhdmZjYXVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3NDMwMDksImV4cCI6MjEwNjMxOTAwOX0.LTnqlL4dPtwoW0ZJfCiGmvr2jtgtVmnqUDBrzQ6c2Zg"
 };
